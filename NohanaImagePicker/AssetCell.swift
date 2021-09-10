@@ -30,10 +30,14 @@ class AssetCell: UICollectionViewCell {
         view.isHidden = true
         return view
     }()
+    
     var overlayView: UIView = {
         let view = UIView()
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.2)
+        view.isHidden = true
         return view
     }()
+    
     var durationLabel: UILabel = {
         let view = UILabel()
         view.textAlignment = .right
@@ -60,9 +64,9 @@ class AssetCell: UICollectionViewCell {
         self.contentView.layer.cornerRadius = 13
         
         self.contentView.addSubview(self.imageView)
-        self.contentView.addSubview(self.pickImage)
-        self.contentView.addSubview(self.overlayView)
         self.contentView.addSubview(self.durationLabel)
+        self.contentView.addSubview(self.overlayView)
+        self.contentView.addSubview(self.pickImage)
     }
     
     private func setupContraints() {
@@ -74,7 +78,7 @@ class AssetCell: UICollectionViewCell {
         self.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[v]-0-|", options: [], metrics: nil, views: ["v": self.imageView]))
         self.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-0-[v]-0-|", options: [], metrics: nil, views: ["v": self.imageView]))
         
-        self.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-0-[v]-0-|", options: [], metrics: nil, views: ["v": self.overlayView]))
+        self.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[v]-0-|", options: [], metrics: nil, views: ["v": self.overlayView]))
         self.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-0-[v]-0-|", options: [], metrics: nil, views: ["v": self.overlayView]))
         
         self.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-6-[v(20)]", options: [], metrics: nil, views: ["v": self.pickImage]))
@@ -124,5 +128,10 @@ class AssetCell: UICollectionViewCell {
         let isPicked: Bool = nohanaImagePickerController.pickedAssetList.isPicked(asset)
         self.overlayView.isHidden = !isPicked
         self.pickImage.isHidden = !isPicked
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
     }
 }
