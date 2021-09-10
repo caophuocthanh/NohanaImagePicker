@@ -88,6 +88,8 @@ class DemoListViewController: UITableViewController, NohanaImagePickerController
             handler(false)
         case .authorized:
             handler(true)
+        case .limited:
+            handler(true)
         @unknown default:
             fatalError()
         }
@@ -96,7 +98,7 @@ class DemoListViewController: UITableViewController, NohanaImagePickerController
     // MARK: - Show NohanaImagePicker
 
     @objc func showDefaultPicker() {
-        let picker = NohanaImagePickerController()
+        let picker = NohanaImagePickerController(mediaType: .any)
         picker.delegate = self
         present(picker, animated: true, completion: nil)
     }
@@ -183,12 +185,4 @@ class DemoListViewController: UITableViewController, NohanaImagePickerController
         return cell
     }
 
-    func nohanaImagePicker(_ picker: NohanaImagePickerController, assetDetailListViewController: UICollectionViewController, cell: UICollectionViewCell, indexPath: IndexPath, photoKitAsset: PHAsset) -> UICollectionViewCell {
-        print("🐷\(#function)\n\tindexPath = \(indexPath)\n\tphotoKitAsset = \(photoKitAsset)")
-        return cell
-    }
-
-    func nohanaImagePicker(_ picker: NohanaImagePickerController, assetDetailListViewController: UICollectionViewController, didChangeAssetDetailPage indexPath: IndexPath, photoKitAsset: PHAsset) {
-        print("🐷\(#function)\n\tindexPath = \(indexPath)")
-    }
 }

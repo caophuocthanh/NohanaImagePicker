@@ -21,15 +21,13 @@ public class PhotoKitAlbumList: ItemList {
     private let assetCollectionTypes: [PHAssetCollectionType]
     private let assetCollectionSubtypes: [PHAssetCollectionSubtype]
     private let mediaType: MediaType
-    private var shouldShowEmptyAlbum: Bool
 
     // MARK: - init
 
-    init(assetCollectionTypes: [PHAssetCollectionType], assetCollectionSubtypes: [PHAssetCollectionSubtype], mediaType: MediaType, shouldShowEmptyAlbum: Bool, handler:(() -> Void)?) {
+    init(assetCollectionTypes: [PHAssetCollectionType], assetCollectionSubtypes: [PHAssetCollectionSubtype], mediaType: MediaType, handler:(() -> Void)?) {
         self.assetCollectionTypes = assetCollectionTypes
         self.assetCollectionSubtypes = assetCollectionSubtypes
         self.mediaType = mediaType
-        self.shouldShowEmptyAlbum = shouldShowEmptyAlbum
         update { () -> Void in
             if let handler = handler {
                 handler()
@@ -58,7 +56,7 @@ public class PhotoKitAlbumList: ItemList {
             for fetchResult in albumListFetchResult {
                 fetchResult.enumerateObjects({ (album, index, stop) in
                     if self.assetCollectionSubtypes.contains(album.assetCollectionSubtype) || isAssetCollectionSubtypeAny {
-                        if self.shouldShowEmptyAlbum || PHAsset.fetchAssets(in: album, options: PhotoKitAssetList.fetchOptions(self.mediaType)).count != 0 {
+                        if PHAsset.fetchAssets(in: album, options: PhotoKitAssetList.fetchOptions(self.mediaType)).count != 0 {
                             tmpAlbumList.append(PhotoKitAssetList(album: album, mediaType: self.mediaType))
                         }
                     }

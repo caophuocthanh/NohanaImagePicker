@@ -30,6 +30,8 @@ extension ItemList {
 public protocol Asset {
     var identifier: Int { get }
     func image(targetSize: CGSize, handler: @escaping (ImageData?) -> Void)
+    var duration: TimeInterval { get }
+    var durationString: String? { get }
 }
 
 public struct ImageData {

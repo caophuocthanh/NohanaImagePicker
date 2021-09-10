@@ -20,7 +20,8 @@ class AssetCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var pickButton: UIButton!
     @IBOutlet weak var overlayView: UIView!
-
+    @IBOutlet weak var durationLabel: UILabel!
+    
     weak var nohanaImagePickerController: NohanaImagePickerController?
     var asset: Asset?
 

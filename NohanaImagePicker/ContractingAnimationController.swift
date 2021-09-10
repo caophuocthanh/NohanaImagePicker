@@ -47,7 +47,7 @@ class ContractingAnimationController: NSObject, UIViewControllerAnimatedTransiti
         guard
             let fromVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from) as? DetailListViewControllerProtocol,
             let toVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to) as? UICollectionViewController,
-            toVC is AssetListViewController || toVC is MomentViewController
+            toVC is AssetListViewController
             else {
                 return
         }

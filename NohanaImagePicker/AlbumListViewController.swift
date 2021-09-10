@@ -19,22 +19,6 @@ import Photos
 
 class AlbumListViewController: UITableViewController, EmptyIndicatable, ActivityIndicatable {
 
-    enum AlbumListViewControllerSectionType: Int {
-        case moment = 0
-        case albums
-
-        static func count() -> Int {
-            var count: Int = 0
-            for i in 0..<Int.max {
-                guard AlbumListViewControllerSectionType(rawValue: i) != nil else {
-                    break
-                }
-                count = count + 1
-            }
-            return count
-        }
-    }
-
     weak var nohanaImagePickerController: NohanaImagePickerController?
     var photoKitAlbumList: PhotoKitAlbumList!
 
@@ -72,36 +56,20 @@ class AlbumListViewController: UITableViewController, EmptyIndicatable, Activity
     // MARK: - UITableViewDelegate
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let sectionType = AlbumListViewControllerSectionType(rawValue: indexPath.section) else {
-            fatalError("Invalid section")
-        }
         guard let nohanaImagePickerController = nohanaImagePickerController else {
             return
         }
-        switch sectionType {
-        case .moment:
-            nohanaImagePickerController.delegate?.nohanaImagePickerDidSelectMoment?(nohanaImagePickerController)
-        case .albums:
             nohanaImagePickerController.delegate?.nohanaImagePicker?(nohanaImagePickerController, didSelectPhotoKitAssetList: photoKitAlbumList[indexPath.row].assetList)
-        }
     }
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard let sectionType = AlbumListViewControllerSectionType(rawValue: indexPath.section) else {
-            fatalError("Invalid section")
-        }
-        switch sectionType {
-        case .moment:
-            return 52
-        case .albums:
-            return 82
-        }
+        return 82
     }
 
     // MARK: - UITableViewDataSource
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        return AlbumListViewControllerSectionType.count()
+        return 1
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -111,39 +79,10 @@ class AlbumListViewController: UITableViewController, EmptyIndicatable, Activity
         if let activityIndicator = activityIndicator {
             updateVisibilityOfActivityIndicator(activityIndicator)
         }
-
-        guard let sectionType = AlbumListViewControllerSectionType(rawValue: section) else {
-            fatalError("Invalid section")
-        }
-
-        switch sectionType {
-        case .moment:
-            if let nohanaImagePickerController = nohanaImagePickerController {
-                return nohanaImagePickerController.shouldShowMoment ? 1 : 0
-            }
-            return 0
-
-        case .albums:
-            return photoKitAlbumList.count
-        }
+        return photoKitAlbumList.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let sectionType = AlbumListViewControllerSectionType(rawValue: indexPath.section) else {
-            fatalError("Invalid section")
-        }
-
-        switch sectionType {
-        case .moment:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: "MomentAlbumCell") as? MomentCell else {
-                fatalError("failed to dequeueReusableCellWithIdentifier(\"MomentAlbumCell\")")
-            }
-            if let nohanaImagePickerController = nohanaImagePickerController {
-                cell.config = nohanaImagePickerController.config
-                cell.titleLabel?.text = nohanaImagePickerController.config.strings.albumListMomentTitle ?? NSLocalizedString("albumlist.moment.title", tableName: "NohanaImagePicker", bundle: nohanaImagePickerController.assetBundle, comment: "")
-            }
-            return cell
-        case .albums:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "AlbumCell") as? AlbumCell else {
                 fatalError("failed to dequeueReusableCellWithIdentifier(\"AlbumCell\")")
             }
@@ -170,24 +109,14 @@ class AlbumListViewController: UITableViewController, EmptyIndicatable, Activity
                 cell.thumbnailImageView.image = nil
             }
             return cell
-        }
     }
 
     // MARK: - Storyboard
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let sectionType = AlbumListViewControllerSectionType(rawValue: tableView.indexPathForSelectedRow!.section) else {
-            fatalError("Invalid section")
-        }
-        switch sectionType {
-        case .moment:
-            let momentViewController = segue.destination as! MomentViewController
-            momentViewController.nohanaImagePickerController = nohanaImagePickerController
-        case .albums:
             let assetListViewController = segue.destination as! AssetListViewController
             assetListViewController.photoKitAssetList = photoKitAlbumList[tableView.indexPathForSelectedRow!.row]
             assetListViewController.nohanaImagePickerController = nohanaImagePickerController
-        }
     }
 
     // MARK: - IBAction

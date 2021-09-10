@@ -42,7 +42,7 @@ class ExpandingAnimationController: NSObject, UIViewControllerAnimatedTransition
 
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         guard let fromVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from) as? UICollectionViewController,
-            fromVC is AssetListViewController || fromVC is MomentViewController,
+            fromVC is AssetListViewController,
             let toVC = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to) as? DetailListViewControllerProtocol
             else {
                 return

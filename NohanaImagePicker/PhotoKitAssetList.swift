@@ -35,7 +35,7 @@ open class PhotoKitAssetList: ItemList {
     open var title: String {
         return assetList.localizedTitle ?? ""
     }
-
+    
     open var date: Date? {
         return assetList.startDate
     }
@@ -45,8 +45,10 @@ open class PhotoKitAssetList: ItemList {
         switch mediaType {
         case .photo:
             options.predicate = NSPredicate(format: "mediaType == %ld", PHAssetMediaType.image.rawValue)
-        default:
-            fatalError("not supported .Video and .Any yet")
+        case .video:
+            options.predicate = NSPredicate(format: "mediaType == %ld", PHAssetMediaType.video.rawValue)
+        case .any:
+            break
         }
         return options
     }

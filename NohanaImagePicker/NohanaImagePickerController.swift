@@ -32,8 +32,6 @@ public enum MediaType: Int {
     @objc optional func nohanaImagePicker(_ picker: NohanaImagePickerController, didSelectPhotoKitAssetList assetList: PHAssetCollection)
     @objc optional func nohanaImagePickerDidSelectMoment(_ picker: NohanaImagePickerController) -> Void
     @objc optional func nohanaImagePicker(_ picker: NohanaImagePickerController, assetListViewController: UICollectionViewController, cell: UICollectionViewCell, indexPath: IndexPath, photoKitAsset: PHAsset) -> UICollectionViewCell
-    @objc optional func nohanaImagePicker(_ picker: NohanaImagePickerController, assetDetailListViewController: UICollectionViewController, cell: UICollectionViewCell, indexPath: IndexPath, photoKitAsset: PHAsset) -> UICollectionViewCell
-    @objc optional func nohanaImagePicker(_ picker: NohanaImagePickerController, assetDetailListViewController: UICollectionViewController, didChangeAssetDetailPage indexPath: IndexPath, photoKitAsset: PHAsset)
 
 }
 
@@ -41,10 +39,9 @@ open class NohanaImagePickerController: UIViewController {
 
     open var maximumNumberOfSelection: Int = 21 // set 0 to no limit
     open var numberOfColumnsInPortrait: Int = 4
-    open var numberOfColumnsInLandscape: Int = 7
+    open var numberOfColumnsInLandscape: Int = 4
     open weak var delegate: NohanaImagePickerControllerDelegate?
     open var shouldShowMoment: Bool = true
-    open var shouldShowEmptyAlbum: Bool = false
     open var toolbarHidden: Bool = false
     open var canPickAsset = { (asset: Asset) -> Bool in
         return true
@@ -60,7 +57,6 @@ open class NohanaImagePickerController: UIViewController {
     }()
     let pickedAssetList: PickedAssetList
     let mediaType: MediaType
-    let enableExpandingPhotoAnimation: Bool
     fileprivate let assetCollectionSubtypes: [PHAssetCollectionSubtype]
 
     public init() {
@@ -77,17 +73,15 @@ open class NohanaImagePickerController: UIViewController {
             .smartAlbumRecentlyAdded,
             .smartAlbumUserLibrary
         ]
-        mediaType = .photo
+        mediaType = .any
         pickedAssetList = PickedAssetList()
-        enableExpandingPhotoAnimation = true
         super.init(nibName: nil, bundle: nil)
         self.pickedAssetList.nohanaImagePickerController = self
     }
-
-    public init(assetCollectionSubtypes: [PHAssetCollectionSubtype], mediaType: MediaType, enableExpandingPhotoAnimation: Bool) {
+    
+    public init(assetCollectionSubtypes: [PHAssetCollectionSubtype] = [.any], mediaType: MediaType) {
         self.assetCollectionSubtypes = assetCollectionSubtypes
         self.mediaType = mediaType
-        self.enableExpandingPhotoAnimation = enableExpandingPhotoAnimation
         pickedAssetList = PickedAssetList()
         super.init(nibName: nil, bundle: nil)
         self.pickedAssetList.nohanaImagePickerController = self
@@ -96,13 +90,17 @@ open class NohanaImagePickerController: UIViewController {
     required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    open override func loadView() {
+        super.loadView()
+    }
 
     override open func viewDidLoad() {
         super.viewDidLoad()
 
         // show albumListViewController
         let storyboard = UIStoryboard(name: "NohanaImagePicker", bundle: assetBundle)
-        let viewControllerId = enableExpandingPhotoAnimation ? "EnableAnimationNavigationController" : "DisableAnimationNavigationController"
+        let viewControllerId = "EnableAnimationNavigationController"
         guard let navigationController = storyboard.instantiateViewController(withIdentifier: viewControllerId) as? UINavigationController else {
             fatalError("navigationController init failed.")
         }
@@ -119,7 +117,6 @@ open class NohanaImagePickerController: UIViewController {
                 assetCollectionTypes: [.smartAlbum, .album],
                 assetCollectionSubtypes: assetCollectionSubtypes,
                 mediaType: mediaType,
-                shouldShowEmptyAlbum: shouldShowEmptyAlbum,
                 handler: { [weak albumListViewController] in
                 DispatchQueue.main.async(execute: { () -> Void in
                     albumListViewController?.isLoading = false

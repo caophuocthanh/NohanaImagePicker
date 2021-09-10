@@ -27,7 +27,7 @@ class AnimatableNavigationController: UINavigationController, UINavigationContro
 
     func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationController.Operation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         switch operation {
-        case .push where fromVC is AssetListViewController || fromVC is MomentViewController:
+        case .push where fromVC is AssetListViewController:
             guard let fromVC = fromVC as? UICollectionViewController,
             let selectedIndex = fromVC.collectionView?.indexPathsForSelectedItems?.first,
             let fromCell = fromVC.collectionView?.cellForItem(at: selectedIndex) as? AssetCell
@@ -35,7 +35,7 @@ class AnimatableNavigationController: UINavigationController, UINavigationContro
                 return nil
             }
             return ExpandingAnimationController(fromCell)
-        case .pop where toVC is AssetListViewController || toVC is MomentViewController:
+        case .pop where toVC is AssetListViewController:
             guard let fromVC = fromVC as? DetailListViewControllerProtocol,
             let fromCell = fromVC.collectionView?.cellForItem(at: IndexPath(item: fromVC.currentIndexPath.item, section: 0)) as? AssetDetailCell
             else {

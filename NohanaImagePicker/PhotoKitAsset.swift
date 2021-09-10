@@ -16,7 +16,17 @@
 import Photos
 
 public class PhotoKitAsset: Asset {
-
+    
+    public var durationString: String? {
+        guard self.asset.mediaType == .video else { return nil }
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .positional
+        formatter.allowedUnits = [ .minute, .second ]
+        formatter.zeroFormattingBehavior = [ .pad ]
+        let formattedDuration = formatter.string(from: self.duration)
+        return formattedDuration
+    }
+    
     let asset: PHAsset
 
     public init(asset: PHAsset) {
@@ -25,6 +35,10 @@ public class PhotoKitAsset: Asset {
 
     public var originalAsset: PHAsset {
         return asset as PHAsset
+    }
+    
+    public var duration: TimeInterval {
+        return self.asset.duration
     }
 
     // MARK: - Asset

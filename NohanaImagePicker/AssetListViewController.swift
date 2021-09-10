@@ -115,6 +115,7 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
                 fatalError("failed to dequeueReusableCellWithIdentifier(\"AssetCell\")")
         }
         cell.tag = indexPath.item
+        
         cell.update(asset: photoKitAssetList[indexPath.row], nohanaImagePickerController: nohanaImagePickerController)
 
         let imageSize = CGSize(
@@ -122,6 +123,7 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
             height: cellSize.height * UIScreen.main.scale
         )
         let asset = photoKitAssetList[indexPath.item]
+        cell.durationLabel.text = asset.durationString
         asset.image(targetSize: imageSize) { (imageData) -> Void in
             DispatchQueue.main.async(execute: { () -> Void in
                 if let imageData = imageData {
@@ -140,18 +142,6 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
         return cellSize
     }
 
-    // MARK: - Storyboard
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let selectedIndexPath = collectionView?.indexPathsForSelectedItems?.first else {
-            return
-        }
-
-        let assetListDetailViewController = segue.destination as! AssetDetailListViewController
-        assetListDetailViewController.photoKitAssetList = photoKitAssetList
-        assetListDetailViewController.nohanaImagePickerController = nohanaImagePickerController
-        assetListDetailViewController.currentIndexPath = selectedIndexPath
-    }
 
     // MARK: - IBAction
     @IBAction func didPushDone(_ sender: AnyObject) {
