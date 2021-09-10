@@ -21,6 +21,20 @@ class AlbumListViewController: UITableViewController, EmptyIndicatable, Activity
 
     weak var nohanaImagePickerController: NohanaImagePickerController?
     var photoKitAlbumList: PhotoKitAlbumList!
+    
+    
+//    private var collectionView: UICollectionView!
+//    private var collectionViewLayout: UICollectionViewLayout = UICollectionViewLayout()
+//    
+//    
+//    override func loadView() {
+//        super.loadView()
+//        self.collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: self.collectionViewLayout)
+//        //self.collectionView.delegate = self
+//        //self.collectionView.dataSource = self
+//        self.collectionView.register(AssetCell.self, forCellWithReuseIdentifier: "AlbumCell")
+//        self.view = self.collectionView
+//    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,12 +68,12 @@ class AlbumListViewController: UITableViewController, EmptyIndicatable, Activity
     }
 
     // MARK: - UITableViewDelegate
-
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let nohanaImagePickerController = nohanaImagePickerController else {
-            return
-        }
-
+        let assetListViewController = AssetListViewController()
+        assetListViewController.photoKitAssetList = photoKitAlbumList[tableView.indexPathForSelectedRow!.row]
+        assetListViewController.nohanaImagePickerController = nohanaImagePickerController
+        self.navigationController?.pushViewController(assetListViewController, animated: true)
     }
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -111,13 +125,6 @@ class AlbumListViewController: UITableViewController, EmptyIndicatable, Activity
             return cell
     }
 
-    // MARK: - Storyboard
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-            let assetListViewController = segue.destination as! AssetListViewController
-            assetListViewController.photoKitAssetList = photoKitAlbumList[tableView.indexPathForSelectedRow!.row]
-            assetListViewController.nohanaImagePickerController = nohanaImagePickerController
-    }
 
     // MARK: - IBAction
 

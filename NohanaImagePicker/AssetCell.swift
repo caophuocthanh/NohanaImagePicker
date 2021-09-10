@@ -17,51 +17,112 @@ import UIKit
 
 class AssetCell: UICollectionViewCell {
 
-    @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var pickButton: UIButton!
-    @IBOutlet weak var overlayView: UIView!
-    @IBOutlet weak var durationLabel: UILabel!
+    var imageView: UIImageView = {
+        let view = UIImageView()
+        view.contentMode = .scaleAspectFill
+        view.layer.masksToBounds = true
+        return view
+    }()
     
-    weak var nohanaImagePickerController: NohanaImagePickerController?
-    var asset: Asset?
-
-    override func willMove(toSuperview newSuperview: UIView?) {
-        super.willMove(toSuperview: newSuperview)
-        if let nohanaImagePickerController = nohanaImagePickerController {
-            let droppedImage: UIImage? = nohanaImagePickerController.config.image.droppedSmall ?? UIImage(named: "btn_select_m", in: nohanaImagePickerController.assetBundle, compatibleWith: nil)
-            let pickedImage: UIImage? = nohanaImagePickerController.config.image.pickedSmall ?? UIImage(named: "btn_selected_m", in: nohanaImagePickerController.assetBundle, compatibleWith: nil)
-
-            pickButton.setImage(droppedImage, for: UIControl.State())
-            pickButton.setImage(pickedImage, for: .selected)
+    var pickImage: UIImageView = {
+        let view = UIImageView()
+        view.contentMode = .scaleAspectFit
+        view.isHidden = true
+        return view
+    }()
+    var overlayView: UIView = {
+        let view = UIView()
+        return view
+    }()
+    var durationLabel: UILabel = {
+        let view = UILabel()
+        view.textAlignment = .right
+        view.textColor = .white
+        view.font = UIFont.boldSystemFont(ofSize: 12)
+        return view
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        self.setupComponents()
+        self.setupContraints()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        self.setupComponents()
+        self.setupContraints()
+    }
+    
+    private func setupComponents() {
+        
+        self.contentView.layer.masksToBounds = true
+        self.contentView.layer.cornerRadius = 13
+        
+        self.contentView.addSubview(self.imageView)
+        self.contentView.addSubview(self.pickImage)
+        self.contentView.addSubview(self.overlayView)
+        self.contentView.addSubview(self.durationLabel)
+    }
+    
+    private func setupContraints() {
+        self.imageView.translatesAutoresizingMaskIntoConstraints = false
+        self.pickImage.translatesAutoresizingMaskIntoConstraints = false
+        self.overlayView.translatesAutoresizingMaskIntoConstraints = false
+        self.durationLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        self.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[v]-0-|", options: [], metrics: nil, views: ["v": self.imageView]))
+        self.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-0-[v]-0-|", options: [], metrics: nil, views: ["v": self.imageView]))
+        
+        self.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-0-[v]-0-|", options: [], metrics: nil, views: ["v": self.overlayView]))
+        self.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-0-[v]-0-|", options: [], metrics: nil, views: ["v": self.overlayView]))
+        
+        self.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-6-[v(20)]", options: [], metrics: nil, views: ["v": self.pickImage]))
+        self.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:[v(20)]-6-|", options: [], metrics: nil, views: ["v": self.pickImage]))
+        
+        self.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-4-[v]-8-|", options: [], metrics: nil, views: ["v": self.durationLabel]))
+        self.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:[v(10)]-4-|", options: [], metrics: nil, views: ["v": self.durationLabel]))
+    }
+    
+    weak var nohanaImagePickerController: NohanaImagePickerController? {
+        didSet {
+            if let nohanaImagePickerController = nohanaImagePickerController {
+                self.pickImage.image = nohanaImagePickerController.config.image.pickedSmall ?? UIImage(named: "btn_selected_m", in: nohanaImagePickerController.assetBundle, compatibleWith: nil)
+            }
         }
     }
-
-    @IBAction func didPushPickButton(_ sender: UIButton) {
-        self.makeSelect()
+    
+    private var pickedImage: UIImage? {
+        if let nohanaImagePickerController = nohanaImagePickerController {
+            return nohanaImagePickerController.config.image.pickedSmall ?? UIImage(named: "btn_selected_m", in: nohanaImagePickerController.assetBundle, compatibleWith: nil)
+        }
+        return nil
     }
+    
+    var asset: Asset?
     
     func makeSelect() {
-        guard let asset = asset else {
-            return
-        }
-        if pickButton.isSelected {
-            if nohanaImagePickerController!.pickedAssetList.drop(asset: asset) {
-                pickButton.isSelected = false
+        guard let asset = asset, let nohanaImagePickerController = nohanaImagePickerController else { return }
+        let isPicked: Bool = nohanaImagePickerController.pickedAssetList.isPicked(asset)
+        print("isPicked:", isPicked)
+        if isPicked {
+            if nohanaImagePickerController.pickedAssetList.drop(asset: asset) {
+                self.overlayView.isHidden = true
+                self.pickImage.isHidden = true
             }
         } else {
-            if nohanaImagePickerController!.pickedAssetList.pick(asset: asset) {
-                pickButton.isSelected = true
+            if nohanaImagePickerController.pickedAssetList.pick(asset: asset) {
+                self.overlayView.isHidden = false
+                self.pickImage.isHidden = false
             }
         }
-        self.overlayView.isHidden = !pickButton.isSelected
-        
     }
 
     func update(asset: Asset, nohanaImagePickerController: NohanaImagePickerController) {
         self.asset = asset
         self.nohanaImagePickerController = nohanaImagePickerController
-        self.pickButton.isSelected = nohanaImagePickerController.pickedAssetList.isPicked(asset)
-        self.overlayView.isHidden = !pickButton.isSelected
-        self.pickButton.isHidden = !(nohanaImagePickerController.canPickAsset(asset) )
+        let isPicked: Bool = nohanaImagePickerController.pickedAssetList.isPicked(asset)
+        self.overlayView.isHidden = !isPicked
+        self.pickImage.isHidden = !isPicked
     }
 }

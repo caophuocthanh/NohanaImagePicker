@@ -17,10 +17,25 @@
 import UIKit
 import Photos
 
-class AssetListViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
+class AssetListViewController: UIViewController, UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UICollectionViewDelegate {
 
     weak var nohanaImagePickerController: NohanaImagePickerController?
     var photoKitAssetList: PhotoKitAssetList!
+    
+    private var collectionView: UICollectionView!
+    private var collectionViewLayout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
+    private var cellSpacing: CGFloat = 22
+    
+    override func loadView() {
+        super.loadView()
+        self.collectionView = UICollectionView(frame: self.view.frame, collectionViewLayout: self.collectionViewLayout)
+        self.view = self.collectionView
+        self.collectionView.delegate = self
+        self.collectionView.dataSource = self
+        self.collectionView.contentInset = UIEdgeInsets(top: cellSpacing, left: cellSpacing, bottom: cellSpacing, right: cellSpacing)
+        self.collectionView.register(AssetCell.self, forCellWithReuseIdentifier: "AssetCell")
+        
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,9 +53,9 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
         if UIApplication.shared.statusBarOrientation.isPortrait {
             numberOfColumns = nohanaImagePickerController.numberOfColumnsInPortrait
         }
-        let cellMargin: CGFloat = 2
-        let cellWidth = (view.frame.width - cellMargin * (CGFloat(numberOfColumns) - 1)) / CGFloat(numberOfColumns)
-        return CGSize(width: cellWidth, height: cellWidth)
+        let cellMargin: CGFloat = cellSpacing
+        let cellWidth = ((view.frame.width - cellSpacing*2) - cellMargin * (CGFloat(numberOfColumns) - 1)) / CGFloat(numberOfColumns)
+        return CGSize(width: cellWidth, height: cellWidth/1.25)
     }
 
     deinit {
@@ -97,18 +112,18 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
 
     // MARK: - UICollectionViewDataSource
 
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return photoKitAssetList.count
     }
 
     // MARK: - UICollectionViewDelegate
 
-    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? AssetCell else { return }
         cell.makeSelect()
     }
 
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AssetCell", for: indexPath) as? AssetCell,
             let nohanaImagePickerController  = nohanaImagePickerController else {
                 fatalError("failed to dequeueReusableCellWithIdentifier(\"AssetCell\")")
