@@ -23,6 +23,15 @@ struct Cell {
 }
 
 class DemoListViewController: UITableViewController, NohanaImagePickerControllerDelegate {
+    
+    func nohanaImagePickerDidCancel(_ picker: NohanaImagePickerController) {
+        //
+    }
+    
+    func nohanaImagePicker(_ picker: NohanaImagePickerController, didFinishPickingPhotoKitAssets pickedAssts: [PHAsset]) {
+        //
+    }
+    
 
     let cells = [
         Cell(title: "Default", selector: #selector(DemoListViewController.showDefaultPicker)),
@@ -99,13 +108,13 @@ class DemoListViewController: UITableViewController, NohanaImagePickerController
 
     @objc func showDefaultPicker() {
         let picker = NohanaImagePickerController(mediaType: .any)
-        picker.delegate = self
+        picker.pickerDelegate = self
         present(picker, animated: true, completion: nil)
     }
 
     @objc func showLargeThumbnailPicker() {
         let picker = NohanaImagePickerController()
-        picker.delegate = self
+        picker.pickerDelegate = self
         picker.numberOfColumnsInPortrait = 2
         picker.numberOfColumnsInLandscape = 3
         present(picker, animated: true, completion: nil)
@@ -113,14 +122,14 @@ class DemoListViewController: UITableViewController, NohanaImagePickerController
 
     @objc func showNoToolbarPicker() {
         let picker = NohanaImagePickerController()
-        picker.delegate = self
+        picker.pickerDelegate = self
         picker.toolbarHidden = true
         present(picker, animated: true, completion: nil)
     }
 
     @objc func showDisableToPickAssetsPicker() {
         let picker = NohanaImagePickerController()
-        picker.delegate = self
+        picker.pickerDelegate = self
         picker.canPickAsset = { (asset: Asset) -> Bool in
             return asset.identifier % 2 == 0
         }
@@ -129,7 +138,7 @@ class DemoListViewController: UITableViewController, NohanaImagePickerController
 
     @objc func showCustomUIPicker() {
         let picker = NohanaImagePickerController()
-        picker.delegate = self
+        picker.pickerDelegate = self
         picker.config.color.background = UIColor(red: 0xcc/0xff, green: 0xff/0xff, blue: 0xff/0xff, alpha: 1)
         picker.config.color.separator = UIColor(red: 0x00/0xff, green: 0x66/0xff, blue: 0x66/0xff, alpha: 1)
         picker.config.strings.albumListTitle = "🏞"
@@ -138,51 +147,5 @@ class DemoListViewController: UITableViewController, NohanaImagePickerController
         present(picker, animated: true, completion: nil)
     }
 
-    // MARK: - NohanaImagePickerControllerDelegate
-
-    func nohanaImagePickerDidCancel(_ picker: NohanaImagePickerController) {
-        print("🐷Canceled🙅")
-        picker.dismiss(animated: true, completion: nil)
-    }
-
-    func nohanaImagePicker(_ picker: NohanaImagePickerController, didFinishPickingPhotoKitAssets pickedAssts: [PHAsset]) {
-        print("🐷Completed🙆\n\tpickedAssets = \(pickedAssts)")
-        picker.dismiss(animated: true, completion: nil)
-    }
-
-    func nohanaImagePicker(_ picker: NohanaImagePickerController, willPickPhotoKitAsset asset: PHAsset, pickedAssetsCount: Int) -> Bool {
-        print("🐷\(#function)\n\tasset = \(asset)\n\tpickedAssetsCount = \(pickedAssetsCount)")
-        return true
-    }
-
-    func nohanaImagePicker(_ picker: NohanaImagePickerController, didPickPhotoKitAsset asset: PHAsset, pickedAssetsCount: Int) {
-        print("🐷\(#function)\n\tasset = \(asset)\n\tpickedAssetsCount = \(pickedAssetsCount)")
-    }
-
-    func nohanaImagePicker(_ picker: NohanaImagePickerController, willDropPhotoKitAsset asset: PHAsset, pickedAssetsCount: Int) -> Bool {
-        print("🐷\(#function)\n\tasset = \(asset)\n\tpickedAssetsCount = \(pickedAssetsCount)")
-        return true
-    }
-
-    func nohanaImagePicker(_ picker: NohanaImagePickerController, didDropPhotoKitAsset asset: PHAsset, pickedAssetsCount: Int) {
-        print("🐷\(#function)\n\tasset = \(asset)\n\tpickedAssetsCount = \(pickedAssetsCount)")
-    }
-
-    func nohanaImagePicker(_ picker: NohanaImagePickerController, didSelectPhotoKitAsset asset: PHAsset) {
-        print("🐷\(#function)\n\tasset = \(asset)\n\t")
-    }
-
-    func nohanaImagePicker(_ picker: NohanaImagePickerController, didSelectPhotoKitAssetList assetList: PHAssetCollection) {
-        print("🐷\(#function)\n\t\tassetList = \(assetList)\n\t")
-    }
-
-    func nohanaImagePickerDidSelectMoment(_ picker: NohanaImagePickerController) -> Void {
-        print("🐷\(#function)")
-    }
-
-    func nohanaImagePicker(_ picker: NohanaImagePickerController, assetListViewController: UICollectionViewController, cell: UICollectionViewCell, indexPath: IndexPath, photoKitAsset: PHAsset) -> UICollectionViewCell {
-        print("🐷\(#function)\n\tindexPath = \(indexPath)\n\tphotoKitAsset = \(photoKitAsset)")
-        return cell
-    }
-
+   
 }

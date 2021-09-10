@@ -37,6 +37,10 @@ class AssetCell: UICollectionViewCell {
     }
 
     @IBAction func didPushPickButton(_ sender: UIButton) {
+        self.makeSelect()
+    }
+    
+    func makeSelect() {
         guard let asset = asset else {
             return
         }
@@ -50,6 +54,7 @@ class AssetCell: UICollectionViewCell {
             }
         }
         self.overlayView.isHidden = !pickButton.isSelected
+        
     }
 
     func update(asset: Asset, nohanaImagePickerController: NohanaImagePickerController) {

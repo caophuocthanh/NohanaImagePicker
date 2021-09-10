@@ -59,7 +59,7 @@ class AlbumListViewController: UITableViewController, EmptyIndicatable, Activity
         guard let nohanaImagePickerController = nohanaImagePickerController else {
             return
         }
-            nohanaImagePickerController.delegate?.nohanaImagePicker?(nohanaImagePickerController, didSelectPhotoKitAssetList: photoKitAlbumList[indexPath.row].assetList)
+
     }
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -122,9 +122,10 @@ class AlbumListViewController: UITableViewController, EmptyIndicatable, Activity
     // MARK: - IBAction
 
     @IBAction func didPushCancel(_ sender: AnyObject) {
-        if let nohanaImagePickerController = nohanaImagePickerController {
-            nohanaImagePickerController.delegate?.nohanaImagePickerDidCancel(nohanaImagePickerController)
-        }
+        guard let nohanaImagePickerController = self.nohanaImagePickerController, let delegate = nohanaImagePickerController.pickerDelegate else { return }
+        nohanaImagePickerController.dismiss(animated: true, completion: {
+            delegate.nohanaImagePickerDidCancel(nohanaImagePickerController)
+        })
     }
 
     // MARK: - EmptyIndicatable
@@ -197,6 +198,7 @@ extension UIViewController {
             let title = String(format: nohanaImagePickerController.config.strings.toolbarTitleHasLimit ?? NSLocalizedString("toolbar.title.haslimit", tableName: "NohanaImagePicker", bundle: nohanaImagePickerController.assetBundle, comment: ""),
                 nohanaImagePickerController.pickedAssetList.count,
                 nohanaImagePickerController.maximumNumberOfSelection)
+            infoButton.tintColor = .white
             infoButton.title = title
         }
     }

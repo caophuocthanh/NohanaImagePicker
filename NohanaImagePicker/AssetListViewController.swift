@@ -104,9 +104,8 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
     // MARK: - UICollectionViewDelegate
 
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if let nohanaImagePickerController = nohanaImagePickerController {
-            nohanaImagePickerController.delegate?.nohanaImagePicker?(nohanaImagePickerController, didSelectPhotoKitAsset: photoKitAssetList[indexPath.item].originalAsset)
-        }
+        guard let cell = collectionView.cellForItem(at: indexPath) as? AssetCell else { return }
+        cell.makeSelect()
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -133,7 +132,7 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
                 }
             })
         }
-        return (nohanaImagePickerController.delegate?.nohanaImagePicker?(nohanaImagePickerController, assetListViewController: self, cell: cell, indexPath: indexPath, photoKitAsset: asset.originalAsset)) ?? cell
+        return cell
     }
 
     // MARK: - UICollectionViewDelegateFlowLayout
@@ -146,6 +145,9 @@ class AssetListViewController: UICollectionViewController, UICollectionViewDeleg
     // MARK: - IBAction
     @IBAction func didPushDone(_ sender: AnyObject) {
         let pickedPhotoKitAssets = nohanaImagePickerController!.pickedAssetList.map { ($0 as! PhotoKitAsset).originalAsset }
-        nohanaImagePickerController!.delegate?.nohanaImagePicker(nohanaImagePickerController!, didFinishPickingPhotoKitAssets: pickedPhotoKitAssets )
+        guard let nohanaImagePickerController = self.nohanaImagePickerController, let delegate = self.nohanaImagePickerController?.pickerDelegate else { return }
+        nohanaImagePickerController.dismiss(animated: true, completion: {
+            delegate.nohanaImagePicker(nohanaImagePickerController, didFinishPickingPhotoKitAssets: pickedPhotoKitAssets )
+        })
     }
 }

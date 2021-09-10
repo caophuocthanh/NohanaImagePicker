@@ -24,15 +24,6 @@ public enum MediaType: Int {
 @objc public protocol NohanaImagePickerControllerDelegate {
     func nohanaImagePickerDidCancel(_ picker: NohanaImagePickerController)
     func nohanaImagePicker(_ picker: NohanaImagePickerController, didFinishPickingPhotoKitAssets pickedAssts: [PHAsset])
-    @objc optional func nohanaImagePicker(_ picker: NohanaImagePickerController, willPickPhotoKitAsset asset: PHAsset, pickedAssetsCount: Int) -> Bool
-    @objc optional func nohanaImagePicker(_ picker: NohanaImagePickerController, didPickPhotoKitAsset asset: PHAsset, pickedAssetsCount: Int)
-    @objc optional func nohanaImagePicker(_ picker: NohanaImagePickerController, willDropPhotoKitAsset asset: PHAsset, pickedAssetsCount: Int) -> Bool
-    @objc optional func nohanaImagePicker(_ picker: NohanaImagePickerController, didDropPhotoKitAsset asset: PHAsset, pickedAssetsCount: Int)
-    @objc optional func nohanaImagePicker(_ picker: NohanaImagePickerController, didSelectPhotoKitAsset asset: PHAsset)
-    @objc optional func nohanaImagePicker(_ picker: NohanaImagePickerController, didSelectPhotoKitAssetList assetList: PHAssetCollection)
-    @objc optional func nohanaImagePickerDidSelectMoment(_ picker: NohanaImagePickerController) -> Void
-    @objc optional func nohanaImagePicker(_ picker: NohanaImagePickerController, assetListViewController: UICollectionViewController, cell: UICollectionViewCell, indexPath: IndexPath, photoKitAsset: PHAsset) -> UICollectionViewCell
-
 }
 
 open class NohanaImagePickerController: UIViewController {
@@ -40,7 +31,7 @@ open class NohanaImagePickerController: UIViewController {
     open var maximumNumberOfSelection: Int = 21 // set 0 to no limit
     open var numberOfColumnsInPortrait: Int = 4
     open var numberOfColumnsInLandscape: Int = 4
-    open weak var delegate: NohanaImagePickerControllerDelegate?
+    open weak var pickerDelegate: NohanaImagePickerControllerDelegate?
     open var shouldShowMoment: Bool = true
     open var toolbarHidden: Bool = false
     open var canPickAsset = { (asset: Asset) -> Bool in
@@ -60,19 +51,7 @@ open class NohanaImagePickerController: UIViewController {
     fileprivate let assetCollectionSubtypes: [PHAssetCollectionSubtype]
 
     public init() {
-        assetCollectionSubtypes = [
-            .albumRegular,
-            .albumSyncedEvent,
-            .albumSyncedFaces,
-            .albumSyncedAlbum,
-            .albumImported,
-            .albumMyPhotoStream,
-            .albumCloudShared,
-            .smartAlbumGeneric,
-            .smartAlbumFavorites,
-            .smartAlbumRecentlyAdded,
-            .smartAlbumUserLibrary
-        ]
+        assetCollectionSubtypes = [.any]
         mediaType = .any
         pickedAssetList = PickedAssetList()
         super.init(nibName: nil, bundle: nil)
@@ -100,17 +79,9 @@ open class NohanaImagePickerController: UIViewController {
 
         // show albumListViewController
         let storyboard = UIStoryboard(name: "NohanaImagePicker", bundle: assetBundle)
-        let viewControllerId = "EnableAnimationNavigationController"
-        guard let navigationController = storyboard.instantiateViewController(withIdentifier: viewControllerId) as? UINavigationController else {
+        let viewControllerId = "AlbumListViewController"
+        guard let albumListViewController = storyboard.instantiateViewController(withIdentifier: viewControllerId) as? AlbumListViewController else {
             fatalError("navigationController init failed.")
-        }
-        addChild(navigationController)
-        view.addSubview(navigationController.view)
-        navigationController.didMove(toParent: self)
-
-        // setup albumListViewController
-        guard let albumListViewController = navigationController.topViewController as? AlbumListViewController else {
-            fatalError("albumListViewController is not topViewController.")
         }
         albumListViewController.photoKitAlbumList =
             PhotoKitAlbumList(
@@ -124,6 +95,13 @@ open class NohanaImagePickerController: UIViewController {
                 })
             })
         albumListViewController.nohanaImagePickerController = self
+        
+        let navigationController = NohanaImagePickerNavigationController(rootViewController: albumListViewController)
+        
+        addChild(navigationController)
+
+        view.addSubview(navigationController.view)
+        navigationController.didMove(toParent: self)
     }
 
     open func pickAsset(_ asset: Asset) {

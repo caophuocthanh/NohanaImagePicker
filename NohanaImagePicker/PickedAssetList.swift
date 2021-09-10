@@ -54,11 +54,6 @@ class PickedAssetList: ItemList {
             return false
         }
         let assetsCountBeforePicking = self.count
-        if asset is PhotoKitAsset {
-            if let canPick = nohanaImagePickerController!.delegate?.nohanaImagePicker?(nohanaImagePickerController!, willPickPhotoKitAsset: (asset as! PhotoKitAsset).originalAsset, pickedAssetsCount: assetsCountBeforePicking), !canPick {
-                return false
-            }
-        }
         guard nohanaImagePickerController!.maximumNumberOfSelection == 0 || assetsCountBeforePicking < nohanaImagePickerController!.maximumNumberOfSelection else {
             return false
         }
@@ -66,7 +61,6 @@ class PickedAssetList: ItemList {
         let assetsCountAfterPicking = self.count
         if asset is PhotoKitAsset {
             let originalAsset = (asset as! PhotoKitAsset).originalAsset
-            nohanaImagePickerController!.delegate?.nohanaImagePicker?(nohanaImagePickerController!, didPickPhotoKitAsset: originalAsset, pickedAssetsCount: assetsCountAfterPicking)
             NotificationCenter.default.post(
                 Notification(
                     name: NotificationInfo.Asset.PhotoKit.didPick,
@@ -83,17 +77,11 @@ class PickedAssetList: ItemList {
     }
 
     func drop(asset: Asset) -> Bool {
-        let assetsCountBeforeDropping = self.count
-        if asset is PhotoKitAsset {
-            if let canDrop = nohanaImagePickerController!.delegate?.nohanaImagePicker?(nohanaImagePickerController!, willDropPhotoKitAsset: (asset as! PhotoKitAsset).originalAsset, pickedAssetsCount: assetsCountBeforeDropping), !canDrop {
-                return false
-            }
-        }
+
         assetlist = assetlist.filter { $0.identifier != asset.identifier }
         let assetsCountAfterDropping = self.count
         if asset is PhotoKitAsset {
             let originalAsset = (asset as! PhotoKitAsset).originalAsset
-            nohanaImagePickerController!.delegate?.nohanaImagePicker?(nohanaImagePickerController!, didDropPhotoKitAsset: originalAsset, pickedAssetsCount: assetsCountAfterDropping)
             NotificationCenter.default.post(
                 Notification(
                     name: NotificationInfo.Asset.PhotoKit.didDrop,
